@@ -1,5 +1,6 @@
 {:paths ["src" "resources"]
- :deps {clojure.java-time/clojure.java-time {:mvn/version "1.1.0"}} ;; clojure dependency classpath + version
+ :deps {org.clojure/clojure {:mvn/version "1.12.2"} 
+        clojure.java-time/clojure.java-time {:mvn/version "1.4.3"}}; clojure dependency classpath + version
  :aliases {:test {:extra-paths ["test"]}}} ;; when :test keyword is used, extra-paths are added classpaths
  ;; clj -A:test -Spath --- apply classpath modification
  
