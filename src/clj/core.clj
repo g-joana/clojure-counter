@@ -1,6 +1,6 @@
 (ns core
   (:require [org.httpkit.server :refer [run-server]]
-            [compojure.core :refer [defroutes GET PUT POST]]
+            [compojure.core :refer [defroutes GET PUT]]
             [compojure.route :as route]
             [cheshire.core :as json]))
 
@@ -22,7 +22,7 @@
   (PUT "/reset" [] {:status 200
                     :headers {"Content-Type" "application/json"}
                     :body (json/encode {:counter (reset-counter)})})
-  )
+  (route/not-found "Not found"))
 
 (defn start-server []
   (println "starting server on port 8080")
