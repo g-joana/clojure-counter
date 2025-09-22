@@ -1,9 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Counter</title>
+    <style>
+      body {
+            overflow: hidden;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+      }
+      button {font-family: monospace; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px;}
+      button:first-of-type {background-color: black; color: white;}
+      button:last-of-type {color: black; background-color: whitesmoke;}
+    </style>
   </head>
   <body>
+
+    <div id="app">
+      <h1 id="counter">0</h1>
+      <button id="reset">reset</button>
+      <button id="increment"><a>+</a></button>
+    </div>
+
     <script src="out/main.js" type="text/javascript"></script>
   </body>
 </html>
