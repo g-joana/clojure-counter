@@ -2,18 +2,24 @@
   (:require [org.httpkit.server :refer [run-server]]
             [compojure.core :refer [defroutes GET PUT OPTIONS]]
             [compojure.route :as route]
-            [cheshire.core :as json]))
+            [cheshire.core :as json]
+            [backend.db :as db]))
 
 (defonce counter (atom 0))
 
+
+
 (defn inc-counter! []
-  (swap! counter inc))
+  (swap! counter inc)
+  (db/update! db/connection [:counter @counter]))
 
 (defn reset-counter! []
-  (reset! counter 0))
+  (reset! counter 0)
+  (db/update! db/connection [:counter @counter]))
+
 
 (def headers
-  {"Content-Type" "application/json" "Access-Control-Allow-Origin" "http://localhost:9000"
+  {"Content-Type" "application/json" "Access-Control-Allow-Origin" "*"
    "Access-Control-Allow-Headers" "Content-type, Authorization"
    "Access-Control-Allow-Methods" "PUT, GET, OPTIONS" "Access-Control-Allow-Credentials" "true"})
 

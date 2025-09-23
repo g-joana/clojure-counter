@@ -16,3 +16,4 @@ pom.xml.asc
 .calva
 .lsp
 .clj-kondo
+/data/counter/

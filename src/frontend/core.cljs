@@ -16,8 +16,10 @@
   (-> (js/fetch "http://localhost:8080/"
                 (clj->js {:method "GET"
                           :headers {"Accept" "application/json"}}))
-      (.then #(.json %))
-      (.then #(js/console.log "Data:" %))
+      (.then #(.json %)) 
+      (.then #(do
+                (js/console.log "Data:" %)
+                (update-counter! (.-counter %))))
       (.catch #(js/console.log "Error:" %))))
 
 (defn reset []
@@ -49,7 +51,6 @@
   (when-let [button (.getElementById js/document "reset")]
     (.addEventListener button "click" reset)))
 
-(fetch)
 (setup-buttons)
 
 

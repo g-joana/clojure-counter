@@ -1,13 +1,18 @@
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.2"}
         org.clojure/clojurescript {:mvn/version "1.12.42"}}
- 
+
  :aliases {:back {:extra-deps {http-kit/http-kit {:mvn/version "2.8.1"}
                                compojure/compojure {:mvn/version "1.7.2"}
-                               cheshire/cheshire {:mvn/version "6.1.0"}}
+                               cheshire/cheshire {:mvn/version "6.1.0"}
+                               com.datomic/local {:mvn/version "1.0.291"}}
                   :main-opts ["-m" "backend.core"]}
            :front {:extra-deps {cljs-http/cljs-http {:mvn/version "0.1.46"}
                                 org.clojure/core.async {:mvn/version "1.8.741"}}
                    :main-opts ["--main" "cljs.main"
                                "--repl-opts" "{:launch-browser false :port 9000}"
-                               "--compile" "frontend.core" "--repl"]}}}
+                               "--compile" "frontend.core" "--repl"]}
+           :build {:extra-deps {cljs-http/cljs-http {:mvn/version "0.1.46"}
+                                org.clojure/core.async {:mvn/version "1.8.741"}}
+                   :main-opts ["--main" "cljs.main"
+                               "--compile" "frontend.core"]}}}
