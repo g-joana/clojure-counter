@@ -1,21 +1,10 @@
 (ns backend.core
   (:require [org.httpkit.server :refer [run-server]]
-            [compojure.core :refer [defroutes GET PUT OPTIONS]]
+            [compojure.core :refer [GET PUT OPTIONS routes]]
             [compojure.route :as route]
             [cheshire.core :as json]
-            [backend.db :as db]))
-
-(defonce counter (atom 0))
-
-
-
-(defn inc-counter! []
-  (swap! counter inc)
-  (db/update! db/connection [:counter @counter]))
-
-(defn reset-counter! []
-  (reset! counter 0)
-  (db/update! db/connection [:counter @counter]))
+            [backend.db :as db]
+            [clojure.pprint :as pp]))
 
 
 (def headers
@@ -23,38 +12,48 @@
    "Access-Control-Allow-Headers" "Content-type, Authorization"
    "Access-Control-Allow-Methods" "PUT, GET, OPTIONS" "Access-Control-Allow-Credentials" "true"})
 
-(defroutes app
-  (GET "/" [] {:status 200
-               :headers headers
-               :body (json/encode {:counter @counter})})
-  (PUT "/inc" [] {:status 200
-                  :headers headers
-                  :body (json/encode {:counter (inc-counter!)})})
-  (OPTIONS "/inc" [] {:status 200
-                  :headers headers
-                  :body ""})
-  (PUT "/reset" [] {:status 200
-                    :headers headers
-                    :body (json/encode {:counter (reset-counter!)})})
-  (OPTIONS "/reset" [] {:status 200
-                      :headers headers
-                      :body ""})
-  (route/not-found "Not found"))
+(defn handler [conn headers]
+  (routes
+   (GET "/" []
+     {:status 200
+      :headers headers
+      :body (json/encode {:counter (db/current-value conn)})})
+   (PUT "/inc" []
+     {:status 200
+      :headers headers
+      :body (json/encode {:counter (db/safe-increment! conn)})})
+   (OPTIONS "/inc" []
+     {:status 200
+      :headers headers
+      :body ""})
+   (PUT "/reset" []
+     {:status 200
+      :headers headers
+      :body (json/encode {:counter (db/update! conn 0)})})
+   (OPTIONS "/reset" []
+     {:status 200
+      :headers headers
+      :body ""})
+   (route/not-found "Not found")))
 
-(defn start-server []
+
+(defn start-server [conn]
   (println "starting server on port 8080")
   ;; graceful shutdown: wait 100ms for existing requests to be finished
   ;; :timeout is optional, when no timeout, stop immediately
-  (run-server app {:port 8080}))
+    (run-server (handler conn headers) {:port 8080}))
 
 (defn -main []
-  (start-server))
+  (let [conn (db/create-connection)]
+    (start-server conn)
+    (db/create-schema conn)
+    (db/init-counter! conn)))
 
 ;; interactive dev
 (defonce server (atom nil))
 
-(defn start []
-  (reset! server (start-server)))
+(defn start [conn]
+  (reset! server (start-server conn)))
 
 (defn stop []
   (when @server
@@ -62,6 +61,6 @@
     (reset! server nil)
     (println "Server after reset:" @server)))
 
-(defn restart []
+(defn restart [conn]
   (stop)
-  (start))
+  (start conn))
