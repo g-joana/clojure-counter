@@ -2,12 +2,15 @@
   (:require [datomic.client.api :as d])
   (:require [clojure.pprint :as pp]))
 
+
+;; config
+
 (def client (d/client {:server-type   :datomic-local
                        :system "counter"
                        ;; :storage-dir dev-local stores databases under $ {storage-dir} /$ {system} /$ {db-name}
                        }))
 
-(def schema [{:db/ident :counter/value  ;; entity is represented by entity/attribute 
+(def schema [{:db/ident :counter/value
               :db/valueType :db.type/long
               :db/cardinality :db.cardinality/one}])
 
@@ -15,71 +18,47 @@
   (d/create-database client {:db-name "counter-state"})
   (d/connect client {:db-name "counter-state"}))
 
-;; (def conn (create-connection))
-
 (defn create-schema [conn]
   (d/transact conn {:tx-data schema}))
-;; transact returns future(a kind of promise)
 
-(defn update! [conn new-value]
-  (d/transact conn [{:db/id [:db/ident :counter/value]
-                      :counter/value new-value}]))
+(defn delete-db []
+  (d/delete-database client {:db-name " counter-state "}))
 
+;; db operations
 
-;; (d/list-databases client {})
+;; not working
+(defn upsert! [conn new-value]
+  (let [db (d/db conn)
+        eid (ffirst (d/q '[:find ?e :where [?e :counter/value]] db))]
+    (if eid
+      (d/transact conn [{:db/id eid :counter/value new-value}])
+      (d/transact conn [{:counter/value new-value}]))))
 
-(def new-value {:counter/value 0})
-;; (d/transact conn {:tx-data [new-value]})
-
-
-
-;; (defn snapshot (d/db conn))
 
 (defn current-value [conn]
   (let [snapshot (d/db conn)]
-    (d/q '[:find ?counter
-           :where [_ :counter/value ?counter]]
-         snapshot)))
+    (ffirst (d/q '[:find ?v
+                   :where [_ :counter/value ?v]]
+                 snapshot))))
+
+;; print db
+(defn list-facts [conn]
+  (let [db (d/db conn)]
+    (d/datoms db {:index :eavt})))
+
+(defn eids [conn]
+  (d/q '[:find ?e
+         :where [?e :counter/value]]
+       (d/db conn)))
+
+;; test
+
+(def conn (create-connection))
+(create-schema conn)
+(upsert! conn 0)
+(current-value conn)
+(list-facts conn)
+(eids conn)
 
 
-(defn init-counter! [conn]
-  (when-not (current-value conn)
-    (d/transact conn
-                 [{:db/ident :counter/value
-                   :counter/value 0}])))
-
-
-(defn safe-increment! [conn]
-  (let [snapshot (d/db conn)
-        eid [:db/ident :counter/value]
-        current (:counter/value (d/pull snapshot [:counter/value] eid))]
-    (println (str "try" current " -> " (inc current)))
-    (d/transact conn
-                 [{:db/ident :counter/value
-                   :counter/value [:db.fn/cas :counter/value current (inc current)]}])))
-;; if not, try again?
-
-;; (defn inc-db! [conn]
-;; snapshot
-;; get datom current value
-;; increment value
-;; update-db!
-;; )
-
-
-;; [:db/add entity-id attribute value]
-;; [:db/retract entity-id attribute value?]
-
-;; (first (last current-value))
-
-;; (seq (d/datoms db {:index :eavt}))
-
-
-
-
-;; #datom[entity-id attribute-id value tx-id added?]
-
-(defn delete-db []
-  (d/delete-database client {:db-name "counter-state"}))
-
-;; (delete-db)
+; #datom[entity-id attribute-id value tx-id added?]

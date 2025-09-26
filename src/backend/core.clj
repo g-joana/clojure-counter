@@ -12,7 +12,7 @@
    "Access-Control-Allow-Headers" "Content-type, Authorization"
    "Access-Control-Allow-Methods" "PUT, GET, OPTIONS" "Access-Control-Allow-Credentials" "true"})
 
-(defn handler [conn headers]
+(defn handler [conn]
   (routes
    (GET "/" []
      {:status 200
@@ -21,7 +21,7 @@
    (PUT "/inc" []
      {:status 200
       :headers headers
-      :body (json/encode {:counter (db/safe-increment! conn)})})
+      :body (json/encode {:counter 7})})
    (OPTIONS "/inc" []
      {:status 200
       :headers headers
@@ -29,7 +29,7 @@
    (PUT "/reset" []
      {:status 200
       :headers headers
-      :body (json/encode {:counter (db/update! conn 0)})})
+      :body (json/encode {:counter 0})})
    (OPTIONS "/reset" []
      {:status 200
       :headers headers
@@ -41,13 +41,15 @@
   (println "starting server on port 8080")
   ;; graceful shutdown: wait 100ms for existing requests to be finished
   ;; :timeout is optional, when no timeout, stop immediately
-    (run-server (handler conn headers) {:port 8080}))
+    (run-server (handler conn) {:port 8080}))
 
 (defn -main []
   (let [conn (db/create-connection)]
     (start-server conn)
     (db/create-schema conn)
-    (db/init-counter! conn)))
+    (println (db/current-value conn))
+    (db/upsert! conn 2)
+    (println (db/current-value conn))))
 
 ;; interactive dev
 (defonce server (atom nil))
