@@ -4,42 +4,31 @@
 
 
 ;; config
-
 (def client (d/client {:server-type   :datomic-local
                        :system "counter"
-                       ;; :storage-dir dev-local stores databases under $ {storage-dir} /$ {system} /$ {db-name}
+                       ;; :storage-dir overwrites ~/.datomic/local.edn configs
                        }))
 
 (def schema [{:db/ident :counter/value
               :db/valueType :db.type/long
               :db/cardinality :db.cardinality/one}])
 
+(defn create-db []
+  (d/create-database client {:db-name "counter-state"}))
+
 (defn create-connection []
-  (d/create-database client {:db-name "counter-state"})
   (d/connect client {:db-name "counter-state"}))
 
 (defn create-schema [conn]
   (d/transact conn {:tx-data schema}))
 
 (defn delete-db []
-  (d/delete-database client {:db-name " counter-state "}))
+  (d/delete-database client {:db-name " counter-state"}))
 
-;; db operations
-
-;; not working
-(defn upsert! [conn new-value]
-  (let [db (d/db conn)
-        eid (ffirst (d/q '[:find ?e :where [?e :counter/value]] db))]
-    (if eid
-      (d/transact conn [{:db/id eid :counter/value new-value}])
-      (d/transact conn [{:counter/value new-value}]))))
+(defn init-counter! [conn]
+  (d/transact conn {:tx-data [{:counter/value 0}]}))
 
 
-(defn current-value [conn]
-  (let [snapshot (d/db conn)]
-    (ffirst (d/q '[:find ?v
-                   :where [_ :counter/value ?v]]
-                 snapshot))))
 
 ;; print db
 (defn list-facts [conn]
@@ -51,14 +40,41 @@
          :where [?e :counter/value]]
        (d/db conn)))
 
-;; test
+
+
+;; set db
+(when-not (contains? (set (d/list-databases client {})) "counter-state")
+  (create-db) (let [conn (create-connection)]
+                (create-schema conn) (init-counter! conn)))
 
 (def conn (create-connection))
-(create-schema conn)
-(upsert! conn 0)
-(current-value conn)
-(list-facts conn)
+
+(def eid (ffirst (eids conn)))
+
+(println eid)
+
+
+;; db operations
+;; upsert only works with unique ids?
+(defn current-value []
+  (ffirst (d/q '[:find ?v
+                 :in $ ?e
+                 :where [?e :counter/value ?v]]
+               (d/db conn) eid)))
+
+(defn inc-counter! []
+  (d/transact conn {:tx-data [{:db/id eid :counter/value (inc (current-value))}]}))
+(defn reset-counter! []
+  (d/transact conn {:tx-data [{:db/id eid :counter/value 0}]}))
+
+(init-counter! conn)
+(current-value)
+(inc-counter!)
+(reset-counter!)
 (eids conn)
+;; (d/list-databases client {})
+
+;; test
 
 
 ; #datom[entity-id attribute-id value tx-id added?]
