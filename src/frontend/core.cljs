@@ -3,9 +3,6 @@
             [cljs.core.async :refer [<!]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
-(println "Hello world!" "oi")
-
-
 (defn update-counter! [new-value]
   (when-let [element (.getElementById js/document "counter")]
     (set! (.-innerHTML element) new-value)))
@@ -18,9 +15,10 @@
                           :headers {"Accept" "application/json"}}))
       (.then #(.json %)) 
       (.then #(do
-                (js/console.log "Data:" %)
                 (update-counter! (.-counter %))))
       (.catch #(js/console.log "Error:" %))))
+
+(fetch)
 
 (defn reset []
   (-> (js/fetch "http://localhost:8080/reset"
@@ -28,7 +26,6 @@
                           :headers {"Accept" "application/json"}}))
       (.then #(.json %))
       (.then #(do
-                (js/console.log "Reset:" %)
                 (update-counter! (.-counter %))))
       (.catch #(js/console.log "Error:" %))))
 
@@ -38,7 +35,6 @@
                           :headers {"Accept" "application/json"}}))
       (.then #(.json %))
       (.then #(do
-                (js/console.log "Increment:" %)
                 (update-counter! (.-counter %))))
       (.catch #(js/console.log "Error:" %))))
 

@@ -17,11 +17,11 @@
    (GET "/" []
      {:status 200
       :headers headers
-      :body (json/encode {:counter 5})})
+      :body (json/encode {:counter (db/current-value)})})
    (PUT "/inc" []
      {:status 200
       :headers headers
-      :body (json/encode {:counter 7})})
+      :body (json/encode {:counter (db/inc-counter!)})})
    (OPTIONS "/inc" []
      {:status 200
       :headers headers
@@ -29,7 +29,7 @@
    (PUT "/reset" []
      {:status 200
       :headers headers
-      :body (json/encode {:counter 0})})
+      :body (json/encode {:counter (db/reset-counter!)})})
    (OPTIONS "/reset" []
      {:status 200
       :headers headers

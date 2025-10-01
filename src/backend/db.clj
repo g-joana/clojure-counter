@@ -63,15 +63,17 @@
                (d/db conn) eid)))
 
 (defn inc-counter! []
-  (d/transact conn {:tx-data [{:db/id eid :counter/value (inc (current-value))}]}))
+  (let [new-value (inc (current-value))]
+    (d/transact conn {:tx-data [{:db/id eid :counter/value new-value}]})
+    new-value))
 (defn reset-counter! []
-  (d/transact conn {:tx-data [{:db/id eid :counter/value 0}]}))
+  (d/transact conn {:tx-data [{:db/id eid :counter/value 0}]}) 0)
 
-(init-counter! conn)
-(current-value)
-(inc-counter!)
-(reset-counter!)
-(eids conn)
+;(init-counter! conn)
+;(current-value)
+;(inc-counter!)
+;(reset-counter!)
+;(eids conn)
 ;; (d/list-databases client {})
 
 ;; test
