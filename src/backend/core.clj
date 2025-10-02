@@ -12,21 +12,27 @@
    "Access-Control-Allow-Headers" "Content-type, Authorization"
    "Access-Control-Allow-Methods" "PUT, GET, OPTIONS" "Access-Control-Allow-Credentials" "true"})
 
-
+;; websocket req
 (def channels (atom #{}))
 
 (defn on-open    [ch]
   (swap! channels conj ch)
-  (println (str  "client connected: " ch)))
+  (println (str  "channel connected: " ch)))
+
 (defn on-close   [ch status-code]
   (swap! channels disj ch)
   (println (str  "channel disconnected: " ch " status: " status-code)))
+
+;; update to safer broadcast
 (defn on-receive [ch message]
-  (doseq [client @channels]
-    (hk/send! client (str ch " broadcasting: " message))))
+  (let [new-val (case message
+                  "inc" (str (db/inc-counter!))
+                  "reset" (str (db/reset-counter!)))]
+    (doseq [client @channels]
+      (case (not= client ch)
+        (hk/send! client new-val)))))
 
-
-
+;; handlers
 (defn ws-handler [req]
   (if-not (:websocket? req)
     {:status 200
@@ -42,29 +48,10 @@
    :headers headers
    :body (json/encode {:counter (db/current-value)})})
 
-(defn inc-handler []
-  {:status 200
-   :headers headers
-   :body (json/encode {:counter (db/inc-counter!)})})
-
-(defn reset-handler []
-  {:status 200
-   :headers headers
-   :body (json/encode {:counter (db/reset-counter!)})})
-
-(defn options-handler []
-  {:status 200
-   :headers headers
-   :body ""})
-
 
 (defroutes app
   (GET "/ws" [] ws-handler)
   (GET "/" [] (home-handler))
-  (PUT "/inc" [] (inc-handler))
-  (PUT "/reset"  [] (reset-handler))
-  (OPTIONS "/inc" [] (options-handler))
-  (OPTIONS "/reset" [] (options-handler))
   (route/not-found "Not found"))
 
 (defn start-server []
