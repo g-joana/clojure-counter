@@ -1,13 +1,9 @@
-(ns frontend.core
-  (:require [cljs-http.client :as http]
-            [cljs.core.async :refer [<!]])
-  (:require-macros [cljs.core.async.macros :refer [go]]))
+(ns frontend.core)
+
 
 (defn update-counter! [new-value]
   (when-let [element (.getElementById js/document "counter")]
     (set! (.-innerHTML element) new-value)))
-
-
 
 (defn fetch []
   (-> (js/fetch "http://localhost:8080/"
@@ -39,8 +35,6 @@
       (.catch #(js/console.log "Error:" %))))
 
 
-
-
 (defn setup-buttons []
   (when-let [button (.getElementById js/document "increment")]
     (.addEventListener button "click" increment))
@@ -48,6 +42,3 @@
     (.addEventListener button "click" reset)))
 
 (setup-buttons)
-
-
-

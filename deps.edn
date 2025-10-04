@@ -10,9 +10,7 @@
            :front {:extra-deps {cljs-http/cljs-http {:mvn/version "0.1.46"}
                                 org.clojure/core.async {:mvn/version "1.8.741"}}
                    :main-opts ["--main" "cljs.main"
-                               "--repl-opts" "{:launch-browser false :port 9000}"
-                               "--compile" "frontend.core" "--repl"]}
-           :build {:extra-deps {cljs-http/cljs-http {:mvn/version "0.1.46"}
-                                org.clojure/core.async {:mvn/version "1.8.741"}}
-                   :main-opts ["--main" "cljs.main"
+                               "--optimizations" "advanced"
+                               "--output-to" "resources/public/js/main.js"
+                               "--output-dir" "resources/public/js/out"
                                "--compile" "frontend.core"]}}}
