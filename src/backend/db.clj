@@ -1,9 +1,8 @@
 (ns backend.db
-  (:require [datomic.client.api :as d])
-  (:require [clojure.pprint :as pp]))
+  (:require [datomic.client.api :as d]))
 
 
-;; config
+;; config db
 (def client (d/client {:server-type   :datomic-local
                        :system "counter"
                        ;; :storage-dir overwrites ~/.datomic/local.edn configs
@@ -30,7 +29,8 @@
 
 
 
-;; print db
+;; db views
+;; #datom[entity-id attribute-id value tx-id added?]
 (defn list-facts [conn]
   (let [db (d/db conn)]
     (d/datoms db {:index :eavt})))
@@ -42,7 +42,7 @@
 
 
 
-;; set db
+;; establish connection & init db
 (when-not (contains? (set (d/list-databases client {})) "counter-state")
   (create-db) (let [conn (create-connection)]
                 (create-schema conn) (init-counter! conn)))
@@ -51,11 +51,9 @@
 
 (def eid (ffirst (eids conn)))
 
-(println eid)
 
 
 ;; db operations
-;; upsert only works with unique ids?
 (defn current-value []
   (ffirst (d/q '[:find ?v
                  :in $ ?e
@@ -64,19 +62,7 @@
 
 (defn inc-counter! []
   (let [new-value (inc (current-value))]
-    (d/transact conn {:tx-data [{:db/id eid :counter/value new-value}]})
-    new-value))
+    (d/transact conn {:tx-data [{:db/id eid :counter/value new-value}]}) new-value))
+
 (defn reset-counter! []
   (d/transact conn {:tx-data [{:db/id eid :counter/value 0}]}) 0)
-
-;(init-counter! conn)
-;(current-value)
-;(inc-counter!)
-;(reset-counter!)
-;(eids conn)
-;; (d/list-databases client {})
-
-;; test
-
-
-; #datom[entity-id attribute-id value tx-id added?]
