@@ -8,9 +8,12 @@
 
  :aliases {:back {:main-opts ["-m" "backend.core"]}
            :front {:extra-deps {cljs-http/cljs-http {:mvn/version "0.1.46"}
-                                     org.clojure/core.async {:mvn/version "1.8.741"}}
-                        :main-opts ["--main" "cljs.main"
-                                    "--optimizations" "advanced"
-                                    "--output-to" "resources/public/js/main.js"
-                                    "--output-dir" "resources/public/js/out"
-                                    "--compile" "frontend.core"]}}}
+                                org.clojure/core.async {:mvn/version "1.8.741"}}
+                   :main-opts ["--main" "cljs.main"
+                               "--optimizations" "advanced"
+                               "--output-to" "resources/public/js/main.js"
+                               "--output-dir" "resources/public/js/out"
+                               "--compile" "frontend.core"]}
+           :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.10" :git/sha "deedd62"}
+                          org.clojure/clojurescript {:mvn/version "1.12.42"}}
+                   :ns-default build}}}

@@ -4,7 +4,8 @@
             [compojure.route :as route]
             [cheshire.core :as json]
             [backend.db :as db]
-            [backend.ws :as ws]))
+            [backend.ws :as ws])
+  (:gen-class))
 
 
 (def headers
