@@ -14,17 +14,14 @@
 (defn create-db []
   (d/create-database client {:db-name "counter-state"}))
 
-(defn create-connection []
-  (d/connect client {:db-name "counter-state"}))
-
 (defn create-schema [conn]
   (d/transact conn {:tx-data schema}))
 
+(defn create-connection []
+  (d/connect client {:db-name "counter-state"}))
+
 (defn delete-db []
   (d/delete-database client {:db-name " counter-state"}))
-
-(defn init-counter! [conn]
-  (d/transact conn {:tx-data [{:counter/value 0}]}))
 
 
 
@@ -42,21 +39,28 @@
 
 
 ;; establish connection & init db
-(defonce conn (create-connection))
+;; (defonce conn (create-connection))
 
-(defn init-db! [conn]
+(defn init-counter! [conn]
+  (d/transact conn {:tx-data [{:counter/value 0}]}))
+
+(defn init-connection! []
   (when-not (contains? (set (d/list-databases client {})) "counter-state")
     (create-db)
-    (create-schema conn)
-    (init-counter! conn)))
+    (let [conn (create-connection)]
+      (create-schema conn)
+      (init-counter! conn)
+      conn))
+  (create-connection))
 
-(init-db! conn)
+(defonce conn (init-connection!))
+
 (def eid (ffirst (eids conn)))
 
 
 ;; db operations
 (defn current-value []
-  (ffirst (d/q '[:find ?v 
+  (ffirst (d/q '[:find ?v
                  :in $ ?e
                  :where [?e :counter/value ?v]]
                (d/db conn) eid)))
