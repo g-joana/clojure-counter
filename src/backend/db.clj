@@ -5,8 +5,7 @@
 ;; config db
 (def client (d/client {:server-type   :datomic-local
                        :system "counter"
-                       ;; :storage-dir overwrites ~/.datomic/local.edn configs
-                       }))
+                       :storage-dir (str (System/getProperty "user.dir") "/data")}))
 
 (def schema [{:db/ident :counter/value
               :db/valueType :db.type/long
@@ -43,19 +42,21 @@
 
 
 ;; establish connection & init db
-(when-not (contains? (set (d/list-databases client {})) "counter-state")
-  (create-db) (let [conn (create-connection)]
-                (create-schema conn) (init-counter! conn)))
+(defonce conn (create-connection))
 
-(def conn (create-connection))
+(defn init-db! [conn]
+  (when-not (contains? (set (d/list-databases client {})) "counter-state")
+    (create-db)
+    (create-schema conn)
+    (init-counter! conn)))
 
+(init-db! conn)
 (def eid (ffirst (eids conn)))
-
 
 
 ;; db operations
 (defn current-value []
-  (ffirst (d/q '[:find ?v
+  (ffirst (d/q '[:find ?v 
                  :in $ ?e
                  :where [?e :counter/value ?v]]
                (d/db conn) eid)))

@@ -3,14 +3,16 @@
             [compojure.core :refer [GET PUT OPTIONS defroutes]]
             [compojure.route :as route]
             [cheshire.core :as json]
-            [backend.db :as db]
-            [clojure.pprint :as pp]))
+            [backend.db :as db])
+  (:gen-class))
 
 
 (def headers
-  {"Content-Type" "application/json" "Access-Control-Allow-Origin" "*"
+  {"Content-Type" "application/json"
+   "Access-Control-Allow-Origin" "*"
    "Access-Control-Allow-Headers" "Content-type, Authorization"
-   "Access-Control-Allow-Methods" "PUT, GET, OPTIONS" "Access-Control-Allow-Credentials" "true"})
+   "Access-Control-Allow-Methods" "PUT, GET, OPTIONS"
+   "Access-Control-Allow-Credentials" "true"})
 
 (defn home-handler []
   {:status 200

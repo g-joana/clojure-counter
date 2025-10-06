@@ -34,7 +34,6 @@
                 (update-counter! (.-counter %))))
       (.catch #(js/console.log "Error:" %))))
 
-
 (defn setup-buttons []
   (when-let [button (.getElementById js/document "increment")]
     (.addEventListener button "click" increment))
