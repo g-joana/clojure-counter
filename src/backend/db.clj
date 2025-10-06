@@ -23,10 +23,6 @@
 (defn delete-db []
   (d/delete-database client {:db-name " counter-state"}))
 
-(defn init-counter! [conn]
-  (d/transact conn {:tx-data [{:counter/value 0}]}))
-
-
 
 ;; db views
 ;; #datom[entity-id attribute-id value tx-id added?]
@@ -42,17 +38,23 @@
 
 
 ;; establish connection & init db
-(defonce conn (create-connection))
 
-(defn init-db! [conn]
-  (when-not (contains? (set (d/list-databases client {})) "counter-state")
-    (create-db)
-    (create-schema conn)
-    (init-counter! conn)))
+(defn init-counter! [conn]
+  (d/transact conn {:tx-data [{:counter/value 0}]}))
 
-(init-db! conn)
+(defn init-connection! []
+  (if-not (contains? (set (d/list-databases client {})) "counter-state")
+    (do
+      (create-db)
+      (let [conn (create-connection)]
+        (create-schema conn)
+        (init-counter! conn)
+        conn))
+    (create-connection)))
+
+(defonce conn (init-connection!))
+
 (def eid (ffirst (eids conn)))
-
 
 
 ;; db operations
