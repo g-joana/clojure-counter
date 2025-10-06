@@ -8,9 +8,11 @@
 
 
 (def headers
-  {"Content-Type" "application/json" "Access-Control-Allow-Origin" "*"
+  {"Content-Type" "application/json"
+   "Access-Control-Allow-Origin" "*"
    "Access-Control-Allow-Headers" "Content-type, Authorization"
-   "Access-Control-Allow-Methods" "PUT, GET, OPTIONS" "Access-Control-Allow-Credentials" "true"})
+   "Access-Control-Allow-Methods" "PUT, GET, OPTIONS"
+   "Access-Control-Allow-Credentials" "true"})
 
 ;; handlers
 (defn ws-handler [req]
