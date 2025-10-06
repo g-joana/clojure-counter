@@ -2,8 +2,8 @@
 A minimal app focused on persisting data with Datomic built in Clojure and Clojurescript
 
 Requirements:
-- Clojure CLI - 1.12.2.1565
 - Java JRE, JDK - 21.0.8
+- Clojure CLI - 1.12.2.1565
 - Node - v18.19.1
 
 ## Running locally
