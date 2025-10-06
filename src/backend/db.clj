@@ -45,13 +45,14 @@
   (d/transact conn {:tx-data [{:counter/value 0}]}))
 
 (defn init-connection! []
-  (when-not (contains? (set (d/list-databases client {})) "counter-state")
-    (create-db)
-    (let [conn (create-connection)]
-      (create-schema conn)
-      (init-counter! conn)
-      conn))
-  (create-connection))
+  (if-not (contains? (set (d/list-databases client {})) "counter-state")
+    (do
+      (create-db)
+      (let [conn (create-connection)]
+        (create-schema conn)
+        (init-counter! conn)
+        conn))
+    (create-connection)))
 
 (defonce conn (init-connection!))
 
