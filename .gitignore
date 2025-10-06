@@ -15,6 +15,6 @@ pom.xml.asc
 .cpcache/
 .calva
 .lsp
-.clj-kondo
+.clj-kondo/
 /data/counter/
 /resources/public/

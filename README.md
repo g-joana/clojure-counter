@@ -15,11 +15,15 @@ Pre-requisits:
 - Clojure CLI
 
 Build server uberjar:
-``` clojure -T:build uber ```
+```
+clojure -T:build uber
+```
  -> creates a jar file: target/counter-server-0.0.1-standalone.jar
 
 Compile Clojurescript:
-``` clojure -M:front ```
+``` 
+clojure -M:front
+```
  -> output files of compiled js at: resources/public/js
 
 
@@ -29,7 +33,9 @@ Pre-requisits:
 - Java JRE
 
 Run:
-``` java -jar target/counter-server-0.0.1-standalone.jar & npx http-server resources/public/ -p 9000 ```
+```
+java -jar target/counter-server-0.0.1-standalone.jar & npx http-server resources/public/ -p 9000
+```
 -> starts app on http://localhost:9000/
 
 the counter server starts on the background and a node server hosts the client on port 9000
