@@ -17,4 +17,4 @@ pom.xml.asc
 .lsp
 .clj-kondo
 /data/counter/
-/resources/public/js/
+/resources/public/

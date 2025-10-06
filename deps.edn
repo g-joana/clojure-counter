@@ -13,4 +13,7 @@
                                "--optimizations" "advanced"
                                "--output-to" "resources/public/js/main.js"
                                "--output-dir" "resources/public/js/out"
-                               "--compile" "frontend.core"]}}}
+                               "--compile" "frontend.core"]}
+           :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.10" :git/sha "deedd62"}
+                          org.clojure/clojurescript {:mvn/version "1.12.42"}}
+                   :ns-default build}}}
