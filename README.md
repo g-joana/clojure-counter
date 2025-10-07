@@ -44,11 +44,3 @@ Run front-end:
 npx http-server resources/public/ -p 9000
 ```
 > starts front-end on http://localhost:9000/
-
-OR run together:
-```
-java -jar target/counter-server-0.0.1-standalone.jar & npx http-server resources/public/ -p 9000
-```
-> the counter back-end server starts on the background and a node server hosts the front-end client on port 9000
->
-> use `kill %%` or `kil PID` to stop the back-end server process
