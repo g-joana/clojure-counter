@@ -1,6 +1,5 @@
 (ns build
-  (:require [clojure.tools.build.api :as b]
-            [cljs.build.api :as cljs]))
+  (:require [clojure.tools.build.api :as b]))
 
 (def build-folder "target")
 (def jar-content (str build-folder "/classes"))
