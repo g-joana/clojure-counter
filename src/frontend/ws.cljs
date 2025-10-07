@@ -6,7 +6,6 @@
   (when-let [element (.getElementById js/document "counter")]
     (set! (.-innerHTML element) new-value)))
 
-
 (defn on-open [event]
   (println "ws connection established")
   (js/console.log "ws opened:" event))
@@ -33,5 +32,10 @@
       (set! (.-onclose ws) on-close)
       (reset! connection ws)
       (println (str "connecting to " url "...")))))
+
+(defn send [msg]
+  (when-not @connection
+    (connect! "http://localhost:8080/ws"))
+  (.send connection msg))
 
 (connect! "http://localhost:8080/ws")

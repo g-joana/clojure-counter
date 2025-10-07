@@ -16,8 +16,8 @@
 
 (defn setup-buttons []
   (when-let [button (.getElementById js/document "increment")]
-    (.addEventListener button "click" #(.send @ws/connection "inc")))
+    (.addEventListener button "click" (ws/send "inc")))
   (when-let [button (.getElementById js/document "reset")]
-    (.addEventListener button "click" #(.send @ws/connection "reset"))))
+    (.addEventListener button "click" (ws/send "reset"))))
 
 (setup-buttons)
