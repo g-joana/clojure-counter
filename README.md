@@ -9,7 +9,7 @@ Requirements:
 ## Running locally
 Clone repo:
 ```
-git clone git@github.com:g-joana/clojure-counter.git && cd clojure-counter
+git clone git@github.com:g-joana/clojure-counter.git
 ```
 Change to project's directory:
 ```
