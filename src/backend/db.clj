@@ -21,12 +21,21 @@
   (d/connect client {:db-name "counter-state"}))
 
 (defn delete-db []
-  (d/delete-database client {:db-name " counter-state"}))
+  (d/delete-database client {:db-name "counter-state"}))
 
 
 
 ;; db views
 ;; #datom[entity-id attribute-id value tx-id added?]
+;;
+;; index is a sorted set of datoms (7)
+;; EAVT - all attributes of an entity
+;; AEVT - all values of an attribute
+;; --
+;; AV / VA reverse relationships
+;; AVET - Only stores datoms with attribute :db/index true - efficient lookup of entities by a/e pairing
+;; VAET - Only stores datoms with attribute of type ref - efficient navigations of relationship in reverse (called reverse index)
+
 (defn list-facts [conn]
   (let [db (d/db conn)]
     (d/datoms db {:index :eavt})))
@@ -66,9 +75,15 @@
                  :where [?e :counter/value ?v]]
                (d/db conn) eid)))
 
-(defn inc-counter! []
-  (let [new-value (inc (current-value))]
-    (d/transact conn {:tx-data [{:db/id eid :counter/value new-value}]}) new-value))
+(defn inc-counter! [] 
+    (let [current (current-value)
+          new (inc current)]
+      (try
+        (d/transact conn {:tx-data [[:db/cas eid :counter/value current new]]})
+        (catch Exception e
+          (println "Increment transaction failed, trying again:" e)
+          (d/transact conn {:tx-data [[:db/cas eid :counter/value current new]]})))
+      new))
 
 (defn reset-counter! []
   (d/transact conn {:tx-data [{:db/id eid :counter/value 0}]}) 0)
